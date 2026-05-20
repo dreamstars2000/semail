@@ -40,10 +40,11 @@ export async function POST(request: Request) {
       }
     }
 
-    const { name, expiryTime, domain } = await request.json<{ 
+    const { name, expiryTime, domain, password } = await request.json<{
       name: string
       expiryTime: number
       domain: string
+      password?: string
     }>()
 
     if (!EXPIRY_OPTIONS.some(option => option.value === expiryTime)) {
@@ -82,6 +83,7 @@ export async function POST(request: Request) {
     
     const emailData: typeof emails.$inferInsert = {
       address,
+      password: password || null,
       createdAt: now,
       expiresAt: expires,
       userId: userId!

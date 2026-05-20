@@ -27,6 +27,7 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [emailName, setEmailName] = useState("")
+  const [password, setPassword] = useState("")
   const [currentDomain, setCurrentDomain] = useState("")
   const [expiryTime, setExpiryTime] = useState(EXPIRY_OPTIONS[1].value.toString())
   const { toast } = useToast()
@@ -56,7 +57,8 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
         body: JSON.stringify({
           name: emailName,
           domain: currentDomain,
-          expiryTime: parseInt(expiryTime)
+          expiryTime: parseInt(expiryTime),
+          password: password
         })
       })
 
@@ -77,6 +79,7 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
       onEmailCreated()
       setOpen(false)
       setEmailName("")
+      setPassword("")
     } catch {
       toast({
         title: tList("error"),
@@ -134,6 +137,17 @@ export function CreateDialog({ onEmailCreated }: CreateDialogProps) {
             >
               <RefreshCw className="w-4 h-4" />
             </Button>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-muted-foreground">邮箱密码 (可选)</Label>
+            <Input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="留空则默认为 8888"
+              className="w-full"
+            />
           </div>
 
           <div className="flex items-center gap-4">

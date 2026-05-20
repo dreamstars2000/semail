@@ -43,6 +43,7 @@ export const emails = sqliteTable("email", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
   address: text("address").notNull().unique(),
   userId: text("userId").references(() => users.id, { onDelete: "cascade" }),
+  password: text("password"),
   createdAt: integer("created_at", { mode: "timestamp_ms" })
     .notNull()
     .$defaultFn(() => new Date()),
