@@ -63,7 +63,7 @@ export function SignButton({ size = "default" }: SignButtonProps) {
       setIsGuestDialogOpen(false)
       router.push(`/${locale}/shared/${data.token}`)
       
-    } catch (error) {
+    } catch {
       toast({ title: "错误", description: "网络请求失败", variant: "destructive" })
     } finally {
       setIsLoading(false)
