@@ -7,8 +7,8 @@ import { nanoid } from "nanoid"
 export const runtime = "edge"
 
 export async function POST(request: Request) {
-  try {
-    const { address, password } = await request.json()
+  try {    
+    const { address, password } = await request.json() as { address?: string; password?: string }
 
     if (!address || !password) {
       return NextResponse.json({ error: "邮箱和密码不能为空" }, { status: 400 })
