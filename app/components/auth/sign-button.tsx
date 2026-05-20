@@ -51,7 +51,7 @@ export function SignButton({ size = "default" }: SignButtonProps) {
         body: JSON.stringify({ address: guestEmail, password: guestPassword })
       })
       
-      const data = await res.json()
+      const data = await res.json() as { error?: string; token?: string }
       
       if (!res.ok) {
         toast({ title: "查询失败", description: data.error, variant: "destructive" })
