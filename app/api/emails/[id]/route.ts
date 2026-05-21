@@ -17,6 +17,8 @@ export async function DELETE(
   try {
     const db = createDb()
     const { id } = await params
+    
+    // DELETE 保持最严格的权限：只能删 ID，且必须是创建者
     const email = await db.query.emails.findFirst({
       where: and(
         eq(emails.id, id),
@@ -30,6 +32,7 @@ export async function DELETE(
         { status: 403 }
       )
     }
+    
     await db.delete(messages)
       .where(eq(messages.emailId, id))
 
@@ -55,12 +58,14 @@ export async function GET(
   const { searchParams } = new URL(request.url)
   const cursorStr = searchParams.get('cursor')
   const messageType = searchParams.get('type')
+  const password = searchParams.get('password') // 获取脚本传来的密码
 
   try {
     const db = createDb()
     const { id } = await params
-
+    const decodedId = decodeURIComponent(id)
     const userId = await getUserId()
+
     if (messageType === 'sent') {
       const permissionResult = await checkBasicSendPermission(userId!)
       if (!permissionResult.canSend) {
@@ -71,22 +76,50 @@ export async function GET(
       }
     }
 
-    const email = await db.query.emails.findFirst({
-      where: and(
-        eq(emails.id, id),
-        eq(emails.userId, userId!)
-      )
+    // 1. 灵活查出邮箱：支持传入 UUID (网页端) 或 邮箱地址 (Lua脚本)
+    let email = await db.query.emails.findFirst({
+      where: eq(emails.id, decodedId)
     })
 
+    if (!email && decodedId.includes('@')) {
+      email = await db.query.emails.findFirst({
+        where: eq(emails.address, decodedId)
+      })
+    }
+
     if (!email) {
+      return NextResponse.json(
+        { error: "邮箱不存在" },
+        { status: 404 }
+      )
+    }
+
+    // 2. 鉴权核心：满足“是创建者”或“密码正确”即可放行
+    let isAuthorized = false
+
+    // 验证 A：比对创建者 (普通用户登录 或 携带有效 API_KEY 的超级用户)
+    if (userId && email.userId === userId) {
+      isAuthorized = true
+    }
+    // 验证 B：比对密码 (适用于脚本和游客)
+    else if (password && email.password === password) {
+      isAuthorized = true
+    }
+    // 验证 C：空密码兜底放行 (适用于脚本查空密码的游客邮箱)
+    else if (password === "8888" && !email.password) {
+      isAuthorized = true
+    }
+
+    if (!isAuthorized) {
       return NextResponse.json(
         { error: "无权限查看" },
         { status: 403 }
       )
     }
 
+    // 3. 查出邮件列表 (注意：统一使用 email.id 而不是传入的参数，防止参数是地址而导致查不到)
     const baseConditions = and(
-      eq(messages.emailId, id),
+      eq(messages.emailId, email.id),
       messageType === 'sent' 
         ? eq(messages.type, "sent") 
         : or(
@@ -103,14 +136,15 @@ export async function GET(
     const conditions = [baseConditions]
 
     if (cursorStr) {
-      const { timestamp, id } = decodeCursor(cursorStr)
+      // 修改了解构变量名，防止与外层的 id 冲突
+      const { timestamp, id: cursorId } = decodeCursor(cursorStr)
       const orderByTime = messageType === 'sent' ? messages.sentAt : messages.receivedAt
       conditions.push(
         or(
           lt(orderByTime, new Date(timestamp)),
           and(
             eq(orderByTime, new Date(timestamp)),
-            lt(messages.id, id)
+            lt(messages.id, cursorId)
           )
         )
       )
@@ -159,4 +193,4 @@ export async function GET(
       { status: 500 }
     )
   }
-} 
+}
