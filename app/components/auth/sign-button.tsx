@@ -76,7 +76,14 @@ export function SignButton({ size = "default" }: SignButtonProps) {
         {/* 游客查询按钮及弹窗 */}
         <Dialog open={isGuestDialogOpen} onOpenChange={setIsGuestDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" className={cn("gap-2", size === "lg" ? "px-8" : "")} size={size}>
+            <Button 
+              variant="outline" 
+              className={cn(
+                "gap-2 border-2 border-violet-300 text-violet-600 hover:bg-violet-50 hover:text-violet-700 hover:border-violet-400 dark:border-violet-700 dark:text-violet-400 dark:hover:bg-violet-950/30", 
+                size === "lg" ? "px-8" : ""
+              )} 
+              size={size}
+            >
               <Search className={size === "lg" ? "w-5 h-5" : "w-4 h-4"} />
               游客查询
             </Button>
@@ -89,19 +96,25 @@ export function SignButton({ size = "default" }: SignButtonProps) {
               <div className="space-y-2">
                 <Label>邮箱地址</Label>
                 <Input 
-                  placeholder="例如: admin@moemail.app" 
+                  placeholder="" 
                   value={guestEmail}
                   onChange={(e) => setGuestEmail(e.target.value)}
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  autoCapitalize="off"
                 />
               </div>
               <div className="space-y-2">
-                <Label>查询密码</Label>
+                <Label>邮箱密码</Label>
                 <Input 
                   type="password" 
-                  placeholder="未设置密码请输入 8888" 
+                  placeholder="" 
                   value={guestPassword}
                   onChange={(e) => setGuestPassword(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleGuestQuery()}
+                  autoComplete="new-password"
+                  autoCorrect="off"
+                  autoCapitalize="off"
                 />
               </div>
             </div>
