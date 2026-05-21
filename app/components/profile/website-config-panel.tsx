@@ -148,7 +148,7 @@ export function WebsiteConfigPanel() {
             <Input 
               type="number"
               min="1"
-              max="100"
+              max="99999999"
               value={maxEmails}
               onChange={(e) => setMaxEmails(e.target.value)}
               placeholder={`${EMAIL_CONFIG.MAX_ACTIVE_EMAILS}`}

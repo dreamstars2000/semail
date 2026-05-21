@@ -88,7 +88,7 @@ export function SignButton({ size = "default" }: SignButtonProps) {
               游客查询
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="w-[calc(100%-2rem)] max-w-[425px] rounded-lg p-6 my-auto">
             <DialogHeader>
               <DialogTitle>游客邮件查询</DialogTitle>
             </DialogHeader>
