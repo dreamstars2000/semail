@@ -73,7 +73,7 @@ export async function GET(
     const mode = searchParams.get('mode')
     const password = searchParams.get('password')
 
-  try {
+    try {
         const db = createDb()
         const { id } = await params
         const decodedId = decodeURIComponent(id)
@@ -117,7 +117,7 @@ export async function GET(
         let isAuthorized = false
 
         if (userId && email.userId === userId) {
-            // 通道 A：验证系统创建者账号归属 (系统登录或 API_KEY 访问)
+            // 通道 A：验证系统创建者账号归属
             isAuthorized = true
         } else if (password && email.password === password) {
             // 通道 B：验证显式设置的游客/脚本密码
@@ -137,7 +137,7 @@ export async function GET(
             )
         }
 
-        // 3. 查出邮件列表：使用查找到的 email.id 确保不论传入何种格式均能精准对齐
+        // 3. 查出邮件列表
         const baseConditions = and(
             eq(messages.emailId, email.id),
             messageType === 'sent' 
@@ -184,26 +184,54 @@ export async function GET(
         const messageList = hasMore ? results.slice(0, PAGE_SIZE) : results
 
         // ==========================================
-        // 定制过滤层：脚本专属的部落冲突验证码返回模式
+        // 定制过滤层：脚本专属的部落冲突验证码瀑布流提取模式
         // ==========================================
         if (mode === 'code') {
             if (messageList.length > 0) {
                 const latestMsg = messageList[0]
                 
-                // 拼接标题、文本正文和 HTML，确保能全方位搜索
-                const searchTarget = `${latestMsg.subject} ${latestMsg.content} ${latestMsg.html || ''}`
+                // 匹配规则：允许连续的6位数字，或中间带单个空格的3+3位数字（如 451 526）
+                const regex = /\b(\d{3})\s?(\d{3})\b/
+                let verifyCode: string | null = null
+
+                // 【第一步】扫描邮件主题 (Subject) —— 纯净度最高，首选策略
+                if (latestMsg.subject) {
+                    const subjectMatch = latestMsg.subject.match(regex)
+                    if (subjectMatch) {
+                        verifyCode = subjectMatch[1] + subjectMatch[2]
+                    }
+                }
                 
-                // 正则捕获连续 6 位纯数字验证码
-                const codeMatch = searchTarget.match(/\d{6}/)
-                
-                if (codeMatch) {
-                    return new NextResponse(codeMatch[0], {
+                // 【第二步】若主题里没找到，顺延扫描纯文本正文 (Content) —— 次选策略
+                if (!verifyCode && latestMsg.content) {
+                    const contentMatch = latestMsg.content.match(regex)
+                    if (contentMatch) {
+                        verifyCode = contentMatch[1] + contentMatch[2]
+                    }
+                }
+
+                // 【第三步】若前两者都落空，最后才进入 HTML 垃圾堆进行高智商深度清洗提取
+                if (!verifyCode && latestMsg.html) {
+                    // 强制清洗掉 HTML 中的十六进制颜色代码 (例如 #000000) 和发件人域中残留的 000000
+                    const cleanHtml = latestMsg.html
+                        .replace(/#[0-9a-fA-F]{6}/g, '')
+                        .replace(/000000/g, '')
+                    
+                    const htmlMatch = cleanHtml.match(regex)
+                    if (htmlMatch) {
+                        verifyCode = htmlMatch[1] + htmlMatch[2]
+                    }
+                }
+
+                // 精准获取到纯数字后直接返回
+                if (verifyCode) {
+                    return new NextResponse(verifyCode, {
                         status: 200,
                         headers: { 'Content-Type': 'text/plain; charset=utf-8' }
                     })
                 }
                 
-                // 如果实在没找到 6 位数字，将标题直接传回给脚本作为替代方案
+                // 最终兜底：万一格式彻底变异完全找不到数字，原样吐出主题以便脚本在日志中查看问题
                 return new NextResponse(latestMsg.subject, {
                     status: 200,
                     headers: { 'Content-Type': 'text/plain; charset=utf-8' }
