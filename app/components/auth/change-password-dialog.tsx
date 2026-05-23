@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/dialog"
 import { Loader2 } from "lucide-react"
 
-export function ChangePasswordDialog() {
+export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?: string }) {
     const [open, setOpen] = useState(false)
-    const [address, setAddress] = useState("")
+    const [address, setAddress] = useState(initialAddress)
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -47,12 +47,14 @@ export function ChangePasswordDialog() {
             toast({ title: "修改成功", description: "密码已更新" })
             setOpen(false) // 关闭弹窗
             
-            // 清空表单
-            setAddress("")
+            // 清空表单（邮箱可以恢复为初始传入的值）
+            setAddress(initialAddress)
             setCurrentPassword("")
             setNewPassword("")
             
         } catch (error) {
+            // 👇 就是这里！加入打印日志，让 error 被使用到，消除 ESLint 报错
+            console.error("修改密码发生错误:", error)
             toast({ title: "修改失败", description: "系统异常", variant: "destructive" })
         } finally {
             setLoading(false)
