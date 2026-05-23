@@ -151,7 +151,7 @@ export function WebsiteConfigPanel() {
               max="99999999"
               value={maxEmails}
               onChange={(e) => setMaxEmails(e.target.value)}
-              placeholder={`${EMAIL_CONFIG.MAX_ACTIVE_EMAILS}`}
+              placeholder=""
             />
           </div>
         </div>

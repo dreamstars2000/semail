@@ -7,6 +7,7 @@ import { FloatingLanguageSwitcher } from "@/components/layout/floating-language-
 import { SharedMessageList } from "@/components/emails/shared-message-list"
 import { SharedMessageDetail } from "@/components/emails/shared-message-detail"
 import { EMAIL_CONFIG } from "@/config"
+import { ChangePasswordDialog } from "@/components/auth/change-password-dialog"
 
 interface Email {
   id: string
@@ -190,6 +191,15 @@ export function SharedEmailPageClient({
           })()}
           ctaText={tShared("createOwnEmail")}
         />
+
+        {/* 👇👇👇 新增的修改密码按钮区域 👇👇👇 */}
+        <div className="flex justify-end mt-2 -mb-2 z-10 relative">
+           <ChangePasswordDialog />
+        </div>
+        {/* 👆👆👆 新增区域结束 👆👆👆 */}
+
+        {/* 桌面端双栏布局 (下面不用改，保持原样) */}
+        <div className="hidden lg:grid grid-cols-2 gap-4 h-[calc(100vh-280px)] mt-6">
 
         {/* 桌面端双栏布局 */}
         <div className="hidden lg:grid grid-cols-2 gap-4 h-[calc(100vh-280px)] mt-6">
