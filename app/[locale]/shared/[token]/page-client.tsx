@@ -1,5 +1,4 @@
 "use client"
-
 import { useState, useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
 import { FloatingLanguageSwitcher } from "@/components/layout/floating-language-switcher"
@@ -170,18 +169,20 @@ export function SharedEmailPageClient({
     }
   }
 
-  return (
+  return (    
+    <div className="flex items-center justify-between mt-4 px-2">
+      <h1 className="text-lg font-bold truncate">
+        {email.address}
+      </h1>
+      
+      <div className="ml-4 shrink-0">
+        <ChangePasswordDialog initialAddress={email.address} />
+        <FloatingLanguageSwitcher />
+      </div>
+    </div>
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto p-4 max-w-7xl">
-        <FloatingLanguageSwitcher />
-        <div className="flex items-center justify-between mt-4 px-2">
-          <h1 className="text-lg font-bold truncate">
-            {email.address}
-          </h1>
-          <div className="ml-4 shrink-0">
-            <ChangePasswordDialog initialAddress={email.address} />
-          </div>
-        </div>
+
         {/* 桌面端双栏布局 */}
         <div className="hidden lg:grid grid-cols-2 gap-4 h-[calc(100vh-280px)] mt-6">
           <div className="border-2 border-primary/20 bg-background rounded-lg overflow-hidden">
