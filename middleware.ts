@@ -111,14 +111,7 @@ function matchLocale(lang: string): Locale | null {
   const base = lang.split('-')[0]
 
   // Handle Chinese variants with explicit regions or scripts
-  if (base === 'zh') {
-    if (lang.includes('tw') || lang.includes('hk') || lang.includes('mo') || lang.includes('hant')) {
-      return 'zh-TW'
-    }
-    if (lang.includes('cn') || lang.includes('sg') || lang.includes('hans')) {
-      return 'zh-CN'
-    }
-    // default Chinese fallback
+  if (base === 'zh') {    
     return 'zh-CN'
   }
 
