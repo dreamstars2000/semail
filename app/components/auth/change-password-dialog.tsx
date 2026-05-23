@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useTranslations } from "next-intl"
 import { useToast } from "@/components/ui/use-toast"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -20,11 +21,13 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
     const [currentPassword, setCurrentPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [loading, setLoading] = useState(false)
+    
     const { toast } = useToast()
+    const t = useTranslations("auth.changePassword")
 
     const handleSubmit = async () => {
         if (!address || !currentPassword || !newPassword) {
-            toast({ title: "提示", description: "请填写完整信息", variant: "destructive" })
+            toast({ title: t("toast.info"), description: t("toast.fillAll"), variant: "destructive" })
             return
         }
 
@@ -39,23 +42,21 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
             const data = await response.json()
 
             if (!response.ok) {
-                toast({ title: "修改失败", description: data.error, variant: "destructive" })
+                toast({ title: t("toast.failed"), description: data.error, variant: "destructive" })
                 setLoading(false)
                 return
             }
 
-            toast({ title: "修改成功", description: "密码已更新" })
-            setOpen(false) // 关闭弹窗
+            toast({ title: t("toast.success"), description: t("toast.updated") })
+            setOpen(false)
             
-            // 清空表单（邮箱可以恢复为初始传入的值）
             setAddress(initialAddress)
             setCurrentPassword("")
             setNewPassword("")
             
         } catch (error) {
-            // 👇 就是这里！加入打印日志，让 error 被使用到，消除 ESLint 报错
-            console.error("修改密码发生错误:", error)
-            toast({ title: "修改失败", description: "系统异常", variant: "destructive" })
+            console.error("Change password error:", error)
+            toast({ title: t("toast.failed"), description: t("toast.systemError"), variant: "destructive" })
         } finally {
             setLoading(false)
         }
@@ -64,19 +65,19 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button variant="outline" size="sm">修改密码</Button>
+                <Button variant="outline" size="sm">{t("trigger")}</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>修改提取密码</DialogTitle>
+                    <DialogTitle>{t("title")}</DialogTitle>
                     <DialogDescription>
-                        请输入需要修改密码的邮箱账号及原密码进行验证。
+                        {t("description")}
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="space-y-2">
                         <Input
-                            placeholder="邮箱账号"
+                            placeholder={t("fields.address")}
                             value={address}
                             onChange={(e) => setAddress(e.target.value)}
                             disabled={loading}
@@ -85,7 +86,7 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
                     <div className="space-y-2">
                         <Input
                             type="password"
-                            placeholder="原密码"
+                            placeholder={t("fields.currentPassword")}
                             value={currentPassword}
                             onChange={(e) => setCurrentPassword(e.target.value)}
                             disabled={loading}
@@ -94,7 +95,7 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
                     <div className="space-y-2">
                         <Input
                             type="password"
-                            placeholder="新密码"
+                            placeholder={t("fields.newPassword")}
                             value={newPassword}
                             onChange={(e) => setNewPassword(e.target.value)}
                             disabled={loading}
@@ -104,7 +105,7 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
                 <div className="flex justify-end">
                     <Button onClick={handleSubmit} disabled={loading}>
                         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        确认修改
+                        {t("actions.submit")}
                     </Button>
                 </div>
             </DialogContent>

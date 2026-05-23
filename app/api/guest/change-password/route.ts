@@ -7,7 +7,11 @@ export const runtime = "edge"
 
 export async function POST(request: Request) {
     try {
-        const { address, currentPassword, newPassword } = await request.json()
+        const { address, currentPassword, newPassword } = await request.json() as {
+            address?: string;
+            currentPassword?: string;
+            newPassword?: string;
+        }
 
         if (!address || !currentPassword || !newPassword) {
             return NextResponse.json({ error: "请填写完整信息" }, { status: 400 })
