@@ -189,7 +189,7 @@ export function SharedEmailPageClient({
               return tShared("sharedMailbox")
             }
           })()}
-          ctaText={tShared("createOwnEmail")}
+          //ctaText={tShared("createOwnEmail")}
         />
 
         {/* 修改密码按钮区域 */}

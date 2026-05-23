@@ -48,7 +48,6 @@ export function GuestLoginForm() {
                 body: JSON.stringify({ address, password }),
             })
 
-            // 👇 修复点：加上类型断言 as { error?: string, token?: string }
             const data = await response.json() as { error?: string; token?: string }
 
             if (!response.ok) {
@@ -93,7 +92,8 @@ export function GuestLoginForm() {
             </CardHeader>
             <CardContent className="px-6 pb-8">
                 <div className="space-y-4 mt-2">
-                    <div className="space-y-3">
+                    {/* 👇 这里从 space-y-3 改成了 space-y-5，加大了输入框之间的间距 */}
+                    <div className="space-y-5">
                         <div className="space-y-1.5">
                             <div className="relative">
                                 <div className="absolute left-2.5 top-2 text-muted-foreground">
@@ -149,7 +149,7 @@ export function GuestLoginForm() {
                         </div>
                     </div>
 
-                    <div className="space-y-3 pt-3">
+                    <div className="space-y-3 pt-4">
                         <Button
                             className="w-full"
                             onClick={handleLogin}
