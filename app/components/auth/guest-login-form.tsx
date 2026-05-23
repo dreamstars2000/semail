@@ -48,7 +48,8 @@ export function GuestLoginForm() {
                 body: JSON.stringify({ address, password }),
             })
 
-            const data = await response.json()
+            // 👇 修复点：加上类型断言 as { error?: string, token?: string }
+            const data = await response.json() as { error?: string; token?: string }
 
             if (!response.ok) {
                 toast({

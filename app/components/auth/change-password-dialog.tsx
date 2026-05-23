@@ -39,7 +39,8 @@ export function ChangePasswordDialog({ initialAddress = "" }: { initialAddress?:
                 body: JSON.stringify({ address, currentPassword, newPassword }),
             })
 
-            const data = await response.json()
+            // 👇 修复点：加上类型断言 as { error?: string }
+            const data = await response.json() as { error?: string }
 
             if (!response.ok) {
                 toast({ title: t("toast.failed"), description: data.error, variant: "destructive" })
