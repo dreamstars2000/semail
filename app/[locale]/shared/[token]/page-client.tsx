@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useTranslations } from "next-intl"
-import { BrandHeader } from "@/components/ui/brand-header"
 import { FloatingLanguageSwitcher } from "@/components/layout/floating-language-switcher"
 import { SharedMessageList } from "@/components/emails/shared-message-list"
 import { SharedMessageDetail } from "@/components/emails/shared-message-detail"
@@ -46,8 +45,6 @@ export function SharedEmailPageClient({
   token
 }: SharedEmailPageClientProps) {
   const t = useTranslations("emails")
-  const tShared = useTranslations("emails.shared")
-
   const [messages, setMessages] = useState<Message[]>(initialMessages)
   const [selectedMessage, setSelectedMessage] = useState<MessageDetail | null>(null)
   const [messageLoading, setMessageLoading] = useState(false)
